@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "588742630499",
+    "project_id": "envgotravel-459712",
+    "storage_bucket": "envgotravel-459712.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:588742630499:android:2fa08ab354ff076a356c56",
+        "android_client_info": {
+          "package_name": "com.korddy.envgotravel"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "588742630499-3lvdl0r107i2j5d0r2utfert43cepan0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.korddy.envgotravel",
+            "certificate_hash": "daeff95590bbc24ecfcf38cb0cb73f8e06033a40"
+          }
+        },
+        {
+          "client_id": "588742630499-gidlc11t86e6s0gqsiuuilraclgp8ebk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCoUqPtU_ClT-J2UaAo3_KtYkDdVmVVwiw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "588742630499-gidlc11t86e6s0gqsiuuilraclgp8ebk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

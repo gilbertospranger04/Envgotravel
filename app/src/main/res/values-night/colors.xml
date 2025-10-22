@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimaryDark">#00003A</color> <!-- Azul escuro -->
+    <color name="colorBackgroundDark">#00003A</color> <!-- Fundo escuro -->
+    <color name="colorTextDark">#FFFFFF</color> <!-- Texto branco -->
+    <color name="colorGrayDark">#90A4AE</color> <!-- Cinza suave no dark -->
+</resources>
