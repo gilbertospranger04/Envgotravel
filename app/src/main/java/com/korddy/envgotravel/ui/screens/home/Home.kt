@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.korddy.envgotravel.navigations.drawer.Drawer
-import com.korddy.envgotravel.navigations.bottom.bottomNavigation.BottomNavigation
+import com.korddy.envgotravel.navigations.bottom.BottomNavigation
 import com.korddy.envgotravel.ui.screens.profile.ProfileViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -30,10 +30,8 @@ fun Home(
         drawerContent = {
             Drawer(
                 navController = navController,
-                backgroundColor = MaterialTheme.colorScheme.primary // verde
-            ) {
-                coroutineScope.launch { drawerState.close() }
-            }
+                onClose = { coroutineScope.launch { drawerState.close() } }
+            )
         }
     ) {
         Scaffold(
@@ -69,7 +67,7 @@ fun Home(
                     modifier = Modifier
                         .padding(16.dp)
                         .align(Alignment.TopStart),
-                    containerColor = MaterialTheme.colorScheme.primary, // verde
+                    containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 ) {
                     Icon(Icons.Default.Menu, contentDescription = "Abrir menu")
