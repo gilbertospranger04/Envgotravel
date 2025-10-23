@@ -1,4 +1,4 @@
-package com.korddy.envgotravel.ui.screens.store.Store
+package com.korddy.envgotravel.ui.screens.store
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
