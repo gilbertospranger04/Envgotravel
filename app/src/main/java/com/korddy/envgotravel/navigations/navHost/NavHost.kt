@@ -51,8 +51,8 @@ import com.korddy.envgotravel.ui.screens.driverearn.DriverEarn
   
 // Adiciona estas telas se existirem no teu projeto  
 import com.korddy.envgotravel.ui.screens.search.Search  
-import com.korddy.envgotravel.ui.screens.marketplace.Marketplace  
-import com.korddy.envgotravel.ui.screens.store.Store  
+import com.korddy.envgotravel.ui.screens.marketplace.Marketplace
+import com.korddy.envgotravel.ui.screens.store.Store
 import com.korddy.envgotravel.ui.screens.favorite.Favorite  
 import com.korddy.envgotravel.ui.screens.cart.Cart  
   
