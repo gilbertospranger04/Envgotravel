@@ -1,4 +1,4 @@
-package com.korddy.envgotravel.navigations.marketPlace
+package com.korddy.envgotravel.ui.screens.marketplace
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
