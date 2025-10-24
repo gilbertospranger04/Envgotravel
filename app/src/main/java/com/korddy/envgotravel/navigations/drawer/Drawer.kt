@@ -1,19 +1,26 @@
 package com.korddy.envgotravel.navigations.drawer
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import com.google.gson.Gson
 import com.korddy.envgotravel.domain.user.User
 import com.korddy.envgotravel.services.session.SessionCache
 import com.korddy.envgotravel.ui.components.DrawerItem
-import com.google.gson.Gson
 
 @Composable
 fun Drawer(
@@ -35,13 +42,41 @@ fun Drawer(
             .background(MaterialTheme.colorScheme.surface)
             .padding(vertical = 24.dp)
     ) {
-        // Cabeçalho
+        // ========== Cabeçalho com Avatar ==========
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.Start
+                .padding(horizontal = 16.dp)
+                .clickable {
+                    navController.navigate("profile")
+                    onClose()
+                },
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val profilePic = currentUser?.profilePicture
+
+            if (!profilePic.isNullOrBlank()) {
+                Image(
+                    painter = rememberAsyncImagePainter(profilePic),
+                    contentDescription = "Foto de perfil",
+                    modifier = Modifier
+                        .size(84.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                // Avatar placeholder
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "Sem foto de perfil",
+                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                    modifier = Modifier.size(84.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             Text(
                 text = "Olá, ${currentUser?.firstName ?: "Visitante"}!",
                 style = MaterialTheme.typography.titleLarge,
@@ -65,11 +100,26 @@ fun Drawer(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                 )
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    navController.navigate("profile")
+                    onClose()
+                },
+                modifier = Modifier.fillMaxWidth(0.8f),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Icon(Icons.Default.Person, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("Ver Perfil")
+            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Itens principais
+        // ========== Itens principais ==========
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -119,7 +169,7 @@ fun Drawer(
             }
         }
 
-        // Logout
+        // ========== Logout ==========
         Column(
             modifier = Modifier
                 .fillMaxWidth()
