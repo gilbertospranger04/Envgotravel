@@ -20,17 +20,16 @@ import com.korddy.envgotravel.ui.theme.EnvgotravelTheme
 @Composable
 fun Profile(
     navController: NavController,
-    profileViewModel: ProfileViewModel,
-    onBack: () -> Unit
+    viewModel: ProfileViewModel
 ) {
     val darkTheme = isSystemInDarkTheme()
     val colors = MaterialTheme.colorScheme
 
-    val user by profileViewModel.user
-    val isLoading by profileViewModel.isLoading
-    val errorMessage by profileViewModel.errorMessage
+    val user by viewModel.user
+    val isLoading by viewModel.isLoading
+    val errorMessage by viewModel.errorMessage
 
-    LaunchedEffect(Unit) { profileViewModel.fetchUser() }
+    LaunchedEffect(Unit) { viewModel.fetchUser() }
 
     EnvgotravelTheme(darkTheme = darkTheme) {
         Scaffold(
@@ -38,7 +37,7 @@ fun Profile(
                 TopAppBar(
                     title = { Text("Perfil", color = colors.onBackground) },
                     navigationIcon = {
-                        IconButton(onClick = onBack) {
+                        IconButton(onClick = { navController.popBackStack() }) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Voltar",
@@ -56,8 +55,7 @@ fun Profile(
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = colors.background,
-                        titleContentColor = colors.onBackground
+                        containerColor = colors.background
                     )
                 )
             }
@@ -86,14 +84,8 @@ private fun ProfileContent(user: User, colors: ColorScheme) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Centraliza a foto
-        Picture(
-            value = user.profilePicture,
-            size = 120.dp,
-            centered = true
-        )
+        Picture(value = user.profilePicture, size = 120.dp, centered = true)
 
-        // Nome + username
         Text(
             text = "${user.firstName ?: ""} ${user.lastName ?: ""}".trim().ifEmpty { user.username },
             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
@@ -107,18 +99,17 @@ private fun ProfileContent(user: User, colors: ColorScheme) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Info
-        ProfileInfoRow("Email", user.email ?: "-", colors)
-        ProfileInfoRow("Telefone", user.phoneNumber ?: "-", colors)
-        ProfileInfoRow("Idade", user.age?.toString() ?: "-", colors)
-        ProfileInfoRow("Data de Nascimento", user.birthdate ?: "-", colors)
-        ProfileInfoRow("Motorista", if (user.isDriver) "Sim" else "Não", colors)
-        ProfileInfoRow("Saldo na Carteira", "Kz ${user.walletBalance ?: 0.0}", colors)
+        ProfileInfo("Email", user.email ?: "-", colors)
+        ProfileInfo("Telefone", user.phoneNumber ?: "-", colors)
+        ProfileInfo("Idade", user.age?.toString() ?: "-", colors)
+        ProfileInfo("Nascimento", user.birthdate ?: "-", colors)
+        ProfileInfo("Motorista", if (user.isDriver) "Sim" else "Não", colors)
+        ProfileInfo("Saldo", "Kz ${user.walletBalance ?: 0.0}", colors)
     }
 }
 
 @Composable
-private fun ProfileInfoRow(label: String, value: String, colors: ColorScheme) {
+private fun ProfileInfo(label: String, value: String, colors: ColorScheme) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
