@@ -9,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ProfileViewModel : ViewModel() {
-
     val user = mutableStateOf<User?>(null)
     val isLoading = mutableStateOf(false)
     val errorMessage = mutableStateOf<String?>(null)
@@ -25,7 +24,7 @@ class ProfileViewModel : ViewModel() {
                     errorMessage.value = "Erro ${response.code()}"
                 }
             } catch (e: Exception) {
-                errorMessage.value = e.message ?: "Erro inesperado"
+                errorMessage.value = e.message ?: "Erro desconhecido"
             } finally {
                 isLoading.value = false
             }
