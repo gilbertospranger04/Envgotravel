@@ -1,7 +1,7 @@
 package com.korddy.envgotravel.ui.screens.profile
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
@@ -15,7 +15,6 @@ import androidx.navigation.NavController
 import com.korddy.envgotravel.domain.user.User
 import com.korddy.envgotravel.ui.components.Picture
 import com.korddy.envgotravel.ui.theme.EnvgotravelTheme
-import androidx.compose.foundation.isSystemInDarkTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,12 +39,20 @@ fun Profile(
                     title = { Text("Perfil", color = colors.onBackground) },
                     navigationIcon = {
                         IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = colors.onBackground)
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Voltar",
+                                tint = colors.onBackground
+                            )
                         }
                     },
                     actions = {
                         IconButton(onClick = { navController.navigate("editprofile") }) {
-                            Icon(Icons.Filled.Edit, contentDescription = "Editar Perfil", tint = colors.onBackground)
+                            Icon(
+                                Icons.Filled.Edit,
+                                contentDescription = "Editar Perfil",
+                                tint = colors.onBackground
+                            )
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -64,15 +71,9 @@ fun Profile(
             ) {
                 when {
                     isLoading -> CircularProgressIndicator(color = colors.primary)
-                    !errorMessage.isNullOrEmpty() -> Text(
-                        errorMessage ?: "Erro desconhecido",
-                        color = colors.error
-                    )
+                    !errorMessage.isNullOrEmpty() -> Text(errorMessage!!, color = colors.error)
                     user != null -> ProfileContent(user!!, colors)
-                    else -> Text(
-                        "Usuário não encontrado",
-                        color = colors.onBackground
-                    )
+                    else -> Text("Usuário não encontrado", color = colors.onBackground)
                 }
             }
         }
@@ -85,10 +86,11 @@ private fun ProfileContent(user: User, colors: ColorScheme) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Foto de perfil
+        // Centraliza a foto
         Picture(
             value = user.profilePicture,
             size = 120.dp,
+            centered = true
         )
 
         // Nome + username
@@ -105,7 +107,7 @@ private fun ProfileContent(user: User, colors: ColorScheme) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Informações
+        // Info
         ProfileInfoRow("Email", user.email ?: "-", colors)
         ProfileInfoRow("Telefone", user.phoneNumber ?: "-", colors)
         ProfileInfoRow("Idade", user.age?.toString() ?: "-", colors)
@@ -121,15 +123,7 @@ private fun ProfileInfoRow(label: String, value: String, colors: ColorScheme) {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = colors.onBackground
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            color = colors.onBackground
-        )
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = colors.onBackground)
+        Text(value, style = MaterialTheme.typography.bodyMedium, color = colors.onBackground)
     }
 }
