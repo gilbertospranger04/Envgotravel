@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.korddy.envgotravel.domain.user.User
 import com.korddy.envgotravel.ui.components.Picture
@@ -20,7 +21,9 @@ import com.korddy.envgotravel.ui.theme.EnvgotravelTheme
 @Composable
 fun Profile(
     navController: NavController,
-    viewModel: ProfileViewModel
+    viewModel: ProfileViewModel = viewModel(), // instantiate safely via viewModel()
+    onBack: () -> Unit = { navController.navigateUp() }, // backward compat if NavHost passes it
+    onSave: () -> Unit = {} // accept onSave if NavHost supplies it (no-op by default)
 ) {
     val darkTheme = isSystemInDarkTheme()
     val colors = MaterialTheme.colorScheme
@@ -37,7 +40,7 @@ fun Profile(
                 TopAppBar(
                     title = { Text("Perfil", color = colors.onBackground) },
                     navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
+                        IconButton(onClick = onBack) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Voltar",
@@ -82,17 +85,20 @@ fun Profile(
 private fun ProfileContent(user: User, colors: ColorScheme) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Picture(
-            value = user.profilePicture,
-            size = 120.dp,
-            onUpload = null, // Removido parâmetro centered
-            onDelete = null
-        )
+        // centraliza a imagem via Box caso necessário
+        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            Picture(
+                value = user.profilePicture,
+                size = 120.dp,
+                // em profile a área de foto é apenas visual: não passamos onUpload/onDelete
+            )
+        }
 
         Text(
-            text = "${user.firstName ?: ""} ${user.lastName ?: ""}".trim().ifEmpty { user.username },
+            text = (listOfNotNull(user.firstName, user.lastName).joinToString(" ").ifEmpty { user.username }),
             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
             color = colors.onBackground
         )
@@ -106,10 +112,15 @@ private fun ProfileContent(user: User, colors: ColorScheme) {
 
         ProfileInfo("Email", user.email ?: "-", colors)
         ProfileInfo("Telefone", user.phoneNumber ?: "-", colors)
+        ProfileInfo("Nome de perfil (nickname)", user.nickname ?: "-", colors)
         ProfileInfo("Idade", user.age?.toString() ?: "-", colors)
-        ProfileInfo("Nascimento", user.birthdate ?: "-", colors)
+        ProfileInfo("Data de Nascimento", user.birthdate ?: "-", colors)
         ProfileInfo("Motorista", if (user.isDriver) "Sim" else "Não", colors)
-        ProfileInfo("Saldo", "Kz ${user.walletBalance ?: 0.0}", colors)
+        ProfileInfo("Disponível", if (user.isAvailable) "Sim" else "Não", colors)
+        ProfileInfo("Saldo na Carteira", String.format("Kz %.2f", user.walletBalance ?: 0.0), colors)
+        ProfileInfo("2FA Ativado", if (user.twoFactorEnabled) "Sim" else "Não", colors)
+        ProfileInfo("Criado em", user.createdAt ?: "-", colors)
+        ProfileInfo("Atualizado em", user.updatedAt ?: "-", colors)
     }
 }
 
