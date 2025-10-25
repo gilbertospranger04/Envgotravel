@@ -13,9 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.korddy.envgotravel.services.api.UserUpdateRequest
-import com.korddy.envgotravel.ui.components.ButtonLoading
-import com.korddy.envgotravel.ui.components.Input
-import com.korddy.envgotravel.ui.components.Picture
+import com.korddy.envgotravel.ui.components.*
 import com.korddy.envgotravel.ui.theme.EnvgotravelTheme
 import java.io.File
 
@@ -23,9 +21,7 @@ import java.io.File
 @Composable
 fun EditProfile(
     navController: NavController,
-    viewModel: EditProfileViewModel = EditProfileViewModel(),
-    onSave: () -> Unit,
-    onBack: () -> Unit
+    viewModel: EditProfileViewModel = EditProfileViewModel()
 ) {
     val darkTheme = isSystemInDarkTheme()
     val colors = MaterialTheme.colorScheme
@@ -35,7 +31,7 @@ fun EditProfile(
     val errorMessage by viewModel.errorMessage
     val scrollState = rememberScrollState()
 
-    // Campos editáveis
+    // Estados dos campos
     var username by remember { mutableStateOf("") }
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
@@ -46,15 +42,16 @@ fun EditProfile(
 
     LaunchedEffect(Unit) { viewModel.fetchUser() }
 
+    // Atualiza campos quando o user muda
     LaunchedEffect(user) {
         user?.let {
             username = it.username
-            firstName = it.firstName ?: ""
-            lastName = it.lastName ?: ""
-            email = it.email ?: ""
-            age = it.age?.toString() ?: ""
-            birthdate = it.birthdate ?: ""
-            walletBalance = it.walletBalance?.toString() ?: ""
+            firstName = it.firstName.orEmpty()
+            lastName = it.lastName.orEmpty()
+            email = it.email.orEmpty()
+            age = it.age?.toString().orEmpty()
+            birthdate = it.birthdate.orEmpty()
+            walletBalance = it.walletBalance?.toString().orEmpty()
         }
     }
 
@@ -64,7 +61,7 @@ fun EditProfile(
                 TopAppBar(
                     title = { Text("Editar Perfil", color = colors.onBackground) },
                     navigationIcon = {
-                        IconButton(onClick = onBack) {
+                        IconButton(onClick = { navController.popBackStack() }) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Voltar",
@@ -73,8 +70,7 @@ fun EditProfile(
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = colors.background,
-                        titleContentColor = colors.onBackground
+                        containerColor = colors.background
                     )
                 )
             }
@@ -87,80 +83,71 @@ fun EditProfile(
                     .padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                if (isLoading) {
-                    CircularProgressIndicator(color = colors.primary)
-                } else {
-                    if (!errorMessage.isNullOrEmpty()) {
-                        Text(errorMessage ?: "", color = colors.error)
+                when {
+                    isLoading -> CircularProgressIndicator(color = colors.primary)
+                    else -> {
+                        if (!errorMessage.isNullOrEmpty())
+                            Text(errorMessage!!, color = colors.error)
+
+                        Picture(
+                            value = user?.profilePicture,
+                            size = 120.dp,
+                            centered = true,
+                            onUpload = { file: File ->
+                                viewModel.uploadAvatar(
+                                    file,
+                                    onSuccess = { updated -> viewModel.user.value = updated },
+                                    onFailure = { Log.e("EditProfile", it) }
+                                )
+                            },
+                            onDelete = {
+                                viewModel.deleteAvatar(
+                                    onSuccess = {
+                                        viewModel.user.value =
+                                            viewModel.user.value?.copy(profilePicture = null)
+                                    },
+                                    onFailure = { Log.e("EditProfile", it) }
+                                )
+                            }
+                        )
+
+                        Input(username, { username = it }, "Username")
+                        Input(firstName, { firstName = it }, "Nome")
+                        Input(lastName, { lastName = it }, "Sobrenome")
+                        Input(email, { email = it }, "Email")
+                        Input(age, { if (it.all(Char::isDigit)) age = it }, "Idade")
+                        Input(birthdate, { birthdate = it }, "Nascimento (YYYY-MM-DD)")
+                        Input(
+                            walletBalance,
+                            { if (it.matches(Regex("^\\d*\\.?\\d*$"))) walletBalance = it },
+                            "Saldo da Carteira"
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        ButtonLoading(
+                            text = "Salvar Alterações",
+                            loading = isLoading,
+                            enabled = true,
+                            onClick = {
+                                val updated = UserUpdateRequest(
+                                    username = username,
+                                    firstName = firstName,
+                                    lastName = lastName,
+                                    email = email,
+                                    age = age.toIntOrNull(),
+                                    walletBalance = walletBalance.toDoubleOrNull(),
+                                    birthdate = birthdate
+                                )
+                                viewModel.updateUser(
+                                    updated,
+                                    onSuccess = { navController.popBackStack() },
+                                    onFailure = { Log.e("EditProfile", it) }
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
-
-                    // Foto de perfil centralizada
-                    Picture(
-                        value = user?.profilePicture,
-                        size = 120.dp,
-                        centered = true,
-                        onUpload = { file: File ->
-                            viewModel.uploadAvatar(
-                                file,
-                                onSuccess = { updatedUser ->
-                                    viewModel.user.value = updatedUser
-                                },
-                                onFailure = { error ->
-                                    Log.e("EditProfile", "Erro ao enviar avatar: $error")
-                                }
-                            )
-                        },
-                        onDelete = {
-                            viewModel.deleteAvatar(
-                                onSuccess = {
-                                    viewModel.user.value =
-                                        viewModel.user.value?.copy(profilePicture = null)
-                                },
-                                onFailure = { error ->
-                                    Log.e("EditProfile", "Erro ao deletar avatar: $error")
-                                }
-                            )
-                        }
-                    )
-
-                    // Inputs
-                    Input(username, { username = it }, "Username")
-                    Input(firstName, { firstName = it }, "Nome")
-                    Input(lastName, { lastName = it }, "Sobrenome")
-                    Input(email, { email = it }, "Email")
-                    Input(age, { if (it.all { c -> c.isDigit() }) age = it }, "Idade")
-                    Input(birthdate, { birthdate = it }, "Data de Nascimento (YYYY-MM-DD)")
-                    Input(
-                        walletBalance,
-                        { if (it.matches(Regex("^\\d*\\.?\\d*\$"))) walletBalance = it },
-                        "Saldo da Carteira"
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // Um único botão de salvar
-                    ButtonLoading(
-                        text = "Salvar",
-                        loading = isLoading,
-                        enabled = true,
-                        onClick = {
-                            val updated = UserUpdateRequest(
-                                username = username,
-                                firstName = firstName,
-                                lastName = lastName,
-                                email = email,
-                                age = age.toIntOrNull(),
-                                walletBalance = walletBalance.toDoubleOrNull(),
-                                birthdate = birthdate
-                            )
-                            viewModel.updateUser(
-                                updated,
-                                onSuccess = { onSave() },
-                                onFailure = { Log.e("EditProfile", "Erro ao atualizar: $it") }
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
                 }
             }
         }
