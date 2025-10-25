@@ -92,7 +92,6 @@ fun EditProfile(
                         Picture(
                             value = user?.profilePicture,
                             size = 120.dp,
-                            centered = true,
                             onUpload = { file: File ->
                                 viewModel.uploadAvatar(
                                     file,
