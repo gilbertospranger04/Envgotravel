@@ -5,21 +5,21 @@ import com.korddy.envgotravel.domain.user.User
 import java.io.Serializable
 
 // =====================
-// AUTHENTICAÇÃO
+// AUTENTICAÇÃO
 // =====================
 
 data class SignupRequest(
     @SerializedName("username") val username: String,
     @SerializedName("password") val password: String,
     @SerializedName("confirm_password") val confirmPassword: String,
-    @SerializedName("email") val email: String? = null,
     @SerializedName("phone_number") val phoneNumber: String,
-    @SerializedName("first_name") val firstName: String? = null,
-    @SerializedName("last_name") val lastName: String? = null,
+    @SerializedName("nickname") val nickname: String? = null,
     @SerializedName("age") val age: Int? = null,
     @SerializedName("birthdate") val birthdate: String? = null,
     @SerializedName("is_driver") val isDriver: Boolean = false,
-    @SerializedName("profile_picture") val profilePicture: String? = null
+    @SerializedName("is_available") val isAvailable: Boolean = true,
+    @SerializedName("profile_picture") val profilePicture: String? = null,
+    @SerializedName("avatar") val avatar: String? = null
 ) : Serializable
 
 data class SigninRequest(
@@ -32,22 +32,29 @@ data class SigninResponse(
     @SerializedName("user") val user: User
 )
 
+// =====================
 // OTP
+// =====================
+
 data class SendOtpRequest(@SerializedName("phone_number") val phoneNumber: String)
+
 data class SendOtpResponse(
     @SerializedName("success") val success: Boolean,
     @SerializedName("message") val message: String,
     @SerializedName("status") val status: String?
 )
+
 data class VerifyOtpRequest(
     @SerializedName("phone_number") val phoneNumber: String,
     @SerializedName("otp") val otp: String
 )
+
 data class VerifyOtpResponse(
     @SerializedName("success") val success: Boolean,
     @SerializedName("message") val message: String,
     @SerializedName("phone_number") val phoneNumber: String?
 )
+
 data class CheckPhoneResponse(
     @SerializedName("exists") val exists: Boolean,
     @SerializedName("phone_number") val phoneNumber: String
@@ -61,14 +68,14 @@ data class UserUpdateRequest(
     @SerializedName("username") val username: String?,
     @SerializedName("password") val password: String? = null,
     @SerializedName("confirm_password") val confirmPassword: String? = null,
-    @SerializedName("email") val email: String?,
     @SerializedName("phone_number") val phoneNumber: String?,
-    @SerializedName("first_name") val firstName: String?,
-    @SerializedName("last_name") val lastName: String?,
+    @SerializedName("nickname") val nickname: String?,
     @SerializedName("age") val age: Int?,
     @SerializedName("birthdate") val birthdate: String?,
     @SerializedName("is_driver") val isDriver: Boolean? = null,
+    @SerializedName("is_available") val isAvailable: Boolean? = null,
     @SerializedName("profile_picture") val profilePicture: String? = null,
+    @SerializedName("avatar") val avatar: String? = null,
     @SerializedName("wallet_balance") val walletBalance: Double? = null
 )
 
@@ -89,7 +96,7 @@ data class AvatarResponse(
 )
 
 // =====================
-// TWO-FACTOR AUTH (2FA) - ATUALIZADO PARA NOVO BACKEND
+// AUTENTICAÇÃO 2FA
 // =====================
 
 data class Setup2FAResponse(
@@ -100,7 +107,10 @@ data class Setup2FAResponse(
     @SerializedName("message") val message: String
 )
 
-data class Verify2FASetupRequest(@SerializedName("code") val code: String)
+data class Verify2FASetupRequest(
+    @SerializedName("code") val code: String
+)
+
 data class Verify2FASetupResponse(
     @SerializedName("success") val success: Boolean,
     @SerializedName("verified") val verified: Boolean,
@@ -121,7 +131,9 @@ data class Verify2FALoginResponse(
     @SerializedName("message") val message: String
 )
 
-data class Disable2FARequest(@SerializedName("password") val password: String)
+data class Disable2FARequest(
+    @SerializedName("password") val password: String
+)
 
 data class Signin2FARequest(
     @SerializedName("username") val username: String,
