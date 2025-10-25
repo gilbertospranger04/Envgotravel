@@ -84,7 +84,12 @@ private fun ProfileContent(user: User, colors: ColorScheme) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Picture(value = user.profilePicture, size = 120.dp, centered = true)
+        Picture(
+            value = user.profilePicture,
+            size = 120.dp,
+            onUpload = null, // Removido parâmetro centered
+            onDelete = null
+        )
 
         Text(
             text = "${user.firstName ?: ""} ${user.lastName ?: ""}".trim().ifEmpty { user.username },
