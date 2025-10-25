@@ -1,6 +1,7 @@
 package com.korddy.envgotravel.ui.screens.editProfile
 
 import android.util.Log
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -26,12 +27,15 @@ fun EditProfile(
     onSave: () -> Unit,
     onBack: () -> Unit
 ) {
+    val darkTheme = isSystemInDarkTheme()
+    val colors = MaterialTheme.colorScheme
+
     val user by viewModel.user
     val isLoading by viewModel.isLoading
     val errorMessage by viewModel.errorMessage
     val scrollState = rememberScrollState()
 
-    // Estados locais
+    // Campos editáveis
     var username by remember { mutableStateOf("") }
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
@@ -54,9 +58,7 @@ fun EditProfile(
         }
     }
 
-    EnvgotravelTheme {
-        val colors = MaterialTheme.colorScheme
-
+    EnvgotravelTheme(darkTheme = darkTheme) {
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -68,32 +70,6 @@ fun EditProfile(
                                 contentDescription = "Voltar",
                                 tint = colors.onBackground
                             )
-                        }
-                    },
-                    actions = {
-                        TextButton(
-                            onClick = {
-                                val updated = UserUpdateRequest(
-                                    username = username,
-                                    firstName = firstName,
-                                    lastName = lastName,
-                                    email = email,
-                                    phoneNumber = user?.phoneNumber,
-                                    age = age.toIntOrNull() ?: 0,
-                                    walletBalance = walletBalance.toDoubleOrNull() ?: 0.0,
-                                    birthdate = birthdate
-                                )
-                                Log.d("EditProfile", "Tentando salvar usuário atualizado: $updated")
-                                viewModel.updateUser(
-                                    updated,
-                                    onSuccess = { onSave() },
-                                    onFailure = { error ->
-                                        Log.e("EditProfile", "Erro ao atualizar usuário: $error")
-                                    }
-                                )
-                            }
-                        ) {
-                            Text("Salvar", color = colors.primary)
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -118,66 +94,51 @@ fun EditProfile(
                         Text(errorMessage ?: "", color = colors.error)
                     }
 
-                    // Foto de perfil
+                    // Foto de perfil centralizada
                     Picture(
                         value = user?.profilePicture,
                         size = 120.dp,
+                        centered = true,
                         onUpload = { file: File ->
-                            user?.id?.toString()?.let { id ->
-                                viewModel.uploadAvatar(
-                                    file,
-                                    onSuccess = { updatedUser ->
-                                        viewModel.user.value = updatedUser
-                                    },
-                                    onFailure = { error ->
-                                        Log.e("EditProfile", "Erro ao fazer upload do avatar: $error")
-                                    }
-                                )
-                            }
+                            viewModel.uploadAvatar(
+                                file,
+                                onSuccess = { updatedUser ->
+                                    viewModel.user.value = updatedUser
+                                },
+                                onFailure = { error ->
+                                    Log.e("EditProfile", "Erro ao enviar avatar: $error")
+                                }
+                            )
                         },
                         onDelete = {
-                            user?.id?.toString()?.let { id ->
-                                viewModel.deleteAvatar(
-                                    id,
-                                    onSuccess = {
-                                        viewModel.user.value =
-                                            viewModel.user.value?.copy(profilePicture = null)
-                                    },
-                                    onFailure = { error ->
-                                        Log.e("EditProfile", "Erro ao deletar avatar: $error")
-                                    }
-                                )
-                            }
+                            viewModel.deleteAvatar(
+                                onSuccess = {
+                                    viewModel.user.value =
+                                        viewModel.user.value?.copy(profilePicture = null)
+                                },
+                                onFailure = { error ->
+                                    Log.e("EditProfile", "Erro ao deletar avatar: $error")
+                                }
+                            )
                         }
                     )
 
-                    // Função auxiliar para simplificar Inputs
-                    @Composable
-                    fun outlinedInput(
-                        value: String,
-                        onValueChange: (String) -> Unit,
-                        label: String,
-                        enabled: Boolean = true
-                    ) {
-                        Input(
-                            value = value,
-                            onValueChange = onValueChange,
-                            label = label
-                        )
-                    }
-
-                    // Campos editáveis
-                    outlinedInput(username, { username = it }, "Username")
-                    outlinedInput(firstName, { firstName = it }, "Nome")
-                    outlinedInput(lastName, { lastName = it }, "Sobrenome")
-                    outlinedInput(email, { email = it }, "Email")
-                    outlinedInput(age, { if (it.all { c -> c.isDigit() }) age = it }, "Idade")
-                    outlinedInput(birthdate, { birthdate = it }, "Data de Nascimento (YYYY-MM-DD)")
-                    outlinedInput(walletBalance, { if (it.matches(Regex("^\\d*\\.?\\d*\$"))) walletBalance = it }, "Saldo da Carteira")
+                    // Inputs
+                    Input(username, { username = it }, "Username")
+                    Input(firstName, { firstName = it }, "Nome")
+                    Input(lastName, { lastName = it }, "Sobrenome")
+                    Input(email, { email = it }, "Email")
+                    Input(age, { if (it.all { c -> c.isDigit() }) age = it }, "Idade")
+                    Input(birthdate, { birthdate = it }, "Data de Nascimento (YYYY-MM-DD)")
+                    Input(
+                        walletBalance,
+                        { if (it.matches(Regex("^\\d*\\.?\\d*\$"))) walletBalance = it },
+                        "Saldo da Carteira"
+                    )
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Botão principal salvar
+                    // Um único botão de salvar
                     ButtonLoading(
                         text = "Salvar",
                         loading = isLoading,
@@ -188,28 +149,18 @@ fun EditProfile(
                                 firstName = firstName,
                                 lastName = lastName,
                                 email = email,
-                                phoneNumber = user?.phoneNumber,
-                                age = age.toIntOrNull() ?: 0,
-                                walletBalance = walletBalance.toDoubleOrNull() ?: 0.0,
+                                age = age.toIntOrNull(),
+                                walletBalance = walletBalance.toDoubleOrNull(),
                                 birthdate = birthdate
                             )
                             viewModel.updateUser(
                                 updated,
                                 onSuccess = { onSave() },
-                                onFailure = { error ->
-                                    Log.e("EditProfile", "Erro ao atualizar usuário: $error")
-                                }
+                                onFailure = { Log.e("EditProfile", "Erro ao atualizar: $it") }
                             )
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
-
-                    OutlinedButton(
-                        onClick = { onBack() },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Cancelar", color = colors.onBackground)
-                    }
                 }
             }
         }
