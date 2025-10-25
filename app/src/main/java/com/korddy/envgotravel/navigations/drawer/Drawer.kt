@@ -3,6 +3,7 @@ package com.korddy.envgotravel.navigations.drawer
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -12,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -27,6 +27,8 @@ fun Drawer(
     navController: NavController,
     onClose: () -> Unit
 ) {
+    val darkTheme = isSystemInDarkTheme()
+    val colors = MaterialTheme.colorScheme
     var currentUser by remember { mutableStateOf<User?>(null) }
 
     LaunchedEffect(Unit) {
@@ -39,10 +41,10 @@ fun Drawer(
         modifier = Modifier
             .fillMaxHeight()
             .width(300.dp)
-            .background(MaterialTheme.colorScheme.surface)
+            .background(colors.surface)
             .padding(vertical = 24.dp)
     ) {
-        // ========== Cabeçalho com Avatar ==========
+        // ======= Cabeçalho do Drawer =======
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -60,27 +62,26 @@ fun Drawer(
                     painter = rememberAsyncImagePainter(profilePic),
                     contentDescription = "Foto de perfil",
                     modifier = Modifier
-                        .size(84.dp)
+                        .size(96.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)),
+                        .background(colors.onSurface.copy(alpha = 0.1f)),
                     contentScale = ContentScale.Crop
                 )
             } else {
-                // Avatar placeholder
                 Icon(
                     imageVector = Icons.Default.AccountCircle,
                     contentDescription = "Sem foto de perfil",
-                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
-                    modifier = Modifier.size(84.dp)
+                    tint = colors.onSurface.copy(alpha = 0.4f),
+                    modifier = Modifier.size(96.dp)
                 )
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "Olá, ${currentUser?.firstName ?: "Visitante"}!",
+                text = "Olá, ${currentUser?.firstName ?: "Usuário"}!",
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = colors.onSurface
             )
 
             val fullName = listOfNotNull(currentUser?.firstName, currentUser?.lastName)
@@ -89,7 +90,7 @@ fun Drawer(
                 Text(
                     text = fullName,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
+                    color = colors.onSurface.copy(alpha = 0.9f)
                 )
             }
 
@@ -97,34 +98,22 @@ fun Drawer(
                 Text(
                     text = currentUser?.email ?: "",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                    color = colors.onSurface.copy(alpha = 0.8f)
                 )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    navController.navigate("profile")
-                    onClose()
-                },
-                modifier = Modifier.fillMaxWidth(0.8f),
-                shape = MaterialTheme.shapes.medium
-            ) {
-                Icon(Icons.Default.Person, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("Ver Perfil")
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // ========== Itens principais ==========
+        // ======= Itens principais =======
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
         ) {
+            DrawerItem(Icons.Default.Person, "Ver Perfil") {
+                navController.navigate("profile"); onClose()
+            }
             DrawerItem(Icons.Default.Map, "Mapa") {
                 navController.navigate("map"); onClose()
             }
@@ -146,15 +135,12 @@ fun Drawer(
             DrawerItem(Icons.Default.Security, "Segurança") {
                 navController.navigate("security"); onClose()
             }
-
-            // 2FA
             DrawerItem(Icons.Default.Lock, "Configurar 2FA") {
                 navController.navigate("setup2fa"); onClose()
             }
             DrawerItem(Icons.Default.VerifiedUser, "Verificar 2FA") {
                 navController.navigate("verify2fa"); onClose()
             }
-
             DrawerItem(Icons.Default.DriveEta, "Ganhar como motorista") {
                 navController.navigate("driverearn"); onClose()
             }
@@ -169,21 +155,21 @@ fun Drawer(
             }
         }
 
-        // ========== Logout ==========
+        // ======= Logout =======
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         ) {
             Divider(
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                color = colors.onSurface.copy(alpha = 0.3f),
                 thickness = 1.dp,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
             DrawerItem(
                 icon = Icons.Default.Logout,
                 label = "Sair",
-                iconTint = MaterialTheme.colorScheme.error
+                iconTint = colors.error
             ) {
                 SessionCache.clearAuthToken()
                 SessionCache.clearCurrentUser()
