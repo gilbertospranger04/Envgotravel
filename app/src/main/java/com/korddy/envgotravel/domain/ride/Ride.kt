@@ -3,9 +3,10 @@ package com.korddy.envgotravel.domain.ride
 import com.google.gson.annotations.SerializedName
 import com.korddy.envgotravel.domain.user.User
 import java.time.LocalDateTime
+import java.util.UUID
 
 data class Ride(
-    val id: Int,
+    val id: UUID,
     val passenger: User,
     val driver: User?,
     @SerializedName("pickup_location") val pickupLocation: String,
@@ -21,3 +22,4 @@ data class Ride(
     @SerializedName("requested_at") val requestedAt: LocalDateTime?,
     @SerializedName("completed_at") val completedAt: LocalDateTime?
 )
+
